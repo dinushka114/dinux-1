@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Building Production-Ready RAG Pipelines with LangChain & Llama — Piyumal</title>
+  <meta name="description"
+    content="A practical guide to structuring retrieval-augmented generation systems for enterprise accuracy, custom vector search, and low-latency response times." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="index.css">
+
+  <!-- Early Theme Initialization -->
+  <script>
+    (function () {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      } else {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+      }
+    })();
+  </script>
+</head>
+
+<body>
+  <!-- Header / Navigation -->
+  <header>
+    <div class="container nav">
+      <a class="brand" href="index.html" aria-label="Homepage">
+        <span class="brand-dot"></span>
+        Dinux.me
+      </a>
+
+      <nav id="primary-navigation" class="nav-links" aria-label="Main Navigation">
+        <a href="index.html#about">About</a>
+        <a href="index.html#skills">Skills</a>
+        <a href="index.html#experience">Experience</a>
+        <a href="index.html#blog" aria-current="true">Blog</a>
+        <a href="index.html#contact">Contact</a>
+      </nav>
+
+      <div class="nav-controls">
+        <!-- Theme Toggle Button -->
+        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+          <!-- Sun Icon (shown in dark mode) -->
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="12" cy="12" r="5"></circle>
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+          </svg>
+          <!-- Moon Icon (shown in light mode) -->
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+
+        <!-- Mobile Menu Toggle -->
+        <button id="mobile-toggle" class="mobile-nav-toggle" aria-controls="primary-navigation" aria-expanded="false" aria-label="Toggle menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="article-container">
+    <!-- Article Header -->
+    <header class="article-header">
+      <a href="index.html#blog" class="back-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back to Articles
+      </a>
+
+      <div class="blog-meta" style="margin-top: 12px;">
+        <span class="blog-category">AI & Machine Learning</span>
+        <span>•</span>
+        <span>July 24, 2026</span>
+        <span>•</span>
+        <span>5 min read</span>
+      </div>
+
+      <h1 class="article-page-title">
+        Building Production-Ready RAG Pipelines with LangChain & Llama
+      </h1>
+
+      <div class="author-meta">
+        <img class="author-avatar" src="1665461892254.jpeg" alt="Piyumal" />
+        <div class="author-info">
+          <span class="author-name">Piyumal</span>
+          <span style="font-size: 0.85rem; color: var(--text-subtle);">Software Engineer & Full-Stack Developer</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Article Content -->
+    <article class="article-body">
+      <p class="lead" style="font-size: 1.2rem; font-weight: 500; color: var(--text-main);">
+        Retrieval-Augmented Generation (RAG) has emerged as the industry standard for connecting Large Language Models (LLMs) to private domain knowledge without expensive fine-tuning.
+      </p>
+
+      <p>
+        While creating a simple prototype script takes less than 30 lines of code, transforming that prototype into a high-throughput, low-latency production pipeline requires careful architectural decisions around text chunking, embedding models, vector indexing, and reranking.
+      </p>
+
+      <h2>1. The Core Architecture of Production RAG</h2>
+      <p>
+        A robust RAG architecture consists of two asynchronous workflows: the <strong>Ingestion Pipeline</strong> and the <strong>Query & Generation Pipeline</strong>.
+      </p>
+
+      <blockquote>
+        "Garbage in, garbage out applies doubly to vector embeddings. The quality of your retrieval step strictly caps the maximum factual capability of your LLM responses."
+      </blockquote>
+
+      <h3>Key Components:</h3>
+      <ul>
+        <li><strong>Document Parsing & Chunking:</strong> Splitting raw Markdown, PDF, or HTML documents into semantically coherent chunks (typically 500–1000 tokens with a 10% overlap).</li>
+        <li><strong>Vector Storage:</strong> Utilizing specialized vector indices such as HNSW in Pgvector, Qdrant, or Pinecone for rapid approximate nearest neighbor (ANN) search.</li>
+        <li><strong>Contextual Reranking:</strong> Passing the top-K retrieved candidate chunks through a cross-encoder model to re-score relevance before handing context to the LLM.</li>
+      </ul>
+
+      <h2>2. Implementation Example with LangChain & Llama 3</h2>
+      <p>
+        Here is a practical Python snippet demonstrating how to configure semantic chunking, vector retrieval, and local Llama generation using LangChain:
+      </p>
+
+<pre><code>from langchain_community.document_loaders import TextLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_community.vectorstores import PGVector
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.llms import Ollama
+from langchain.chains import RetrievalQA
+
+# 1. Load and Chunk Domain Knowledge
+loader = TextLoader("knowledge_base.txt")
+documents = loader.load()
+
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=600,
+    chunk_overlap=60,
+    separators=["\n\n", "\n", " ", ""]
+)
+chunks = text_splitter.split_documents(documents)
+
+# 2. Embed & Index into Vector Store
+embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+vector_store = PGVector.from_documents(
+    documents=chunks,
+    embedding=embeddings,
+    connection_string="postgresql+psycopg2://user:pass@localhost:5432/rag_db"
+)
+
+# 3. Build RAG Chain with Local Llama Model
+retriever = vector_store.as_retriever(search_kwargs={"k": 4})
+llm = Ollama(model="llama3:8b")
+
+qa_chain = RetrievalQA.from_chain_type(
+    llm=llm,
+    chain_type="stuff",
+    retriever=retriever
+)
+
+# Execute query
+response = qa_chain.run("How do we handle rate limits in the API?")
+print(response)
+</code></code></pre>
+
+      <h2>3. Optimization Strategies for Enterprise Production</h2>
+      <p>
+        When deploying RAG to thousands of concurrent users, standard similarity search often yields noisy context or redundant snippets. Implementing these optimizations will dramatically boost precision:
+      </p>
+      
+      <ol>
+        <li><strong>Hybrid Search (Dense + Sparse):</strong> Combine vector semantic search with traditional BM25 keyword matching using Reciprocal Rank Fusion (RRF).</li>
+        <li><strong>Reranking Stage:</strong> Reduce context window bloat by picking the top 20 candidates via vector search and reranking down to the top 3 using a Cohere or BGE Cross-Encoder.</li>
+        <li><strong>Streaming Responses:</strong> Stream token-by-token output using Server-Sent Events (SSE) or WebSockets to achieve a time-to-first-token (TTFT) under 300ms.</li>
+      </ol>
+
+      <h2>Summary</h2>
+      <p>
+        Building production RAG systems is less about prompt crafting and more about robust data engineering. By pairing intelligent chunking with hybrid search and reranking, enterprise AI applications can achieve both high accuracy and deterministic performance.
+      </p>
+    </article>
+
+    <!-- Author Box -->
+    <div class="author-box">
+      <img class="author-avatar" src="1665461892254.jpeg" alt="Piyumal" style="width: 72px; height: 72px;" />
+      <div>
+        <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; color: var(--text-main);">Written by Piyumal</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 12px;">
+          Software Engineer based in Matale, Sri Lanka. Specializing in full-stack architecture, performance optimization, and pragmatic AI/ML solutions.
+        </p>
+        <div class="social-links">
+          <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="mailto:you@example.com">Email</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Articles -->
+    <section class="section" style="padding-top: 0; padding-bottom: 60px;">
+      <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 24px; color: var(--text-main);">More Articles</h2>
+      <div class="grid grid-2">
+        <!-- Related 1 -->
+        <article class="card blog-card">
+          <div>
+            <div class="blog-meta">
+              <span class="blog-category">Architecture</span>
+              <span>•</span>
+              <span>7 min read</span>
+            </div>
+            <h3 class="blog-title">Architecting Scalable Microservices with Node.js & Docker</h3>
+            <p class="blog-excerpt">
+              Key lessons for decomposing monolithic systems into resilient, high-throughput microservices.
+            </p>
+          </div>
+          <a href="blog-post.html" class="blog-link">
+            Read Article →
+          </a>
+        </article>
+
+        <!-- Related 2 -->
+        <article class="card blog-card">
+          <div>
+            <div class="blog-meta">
+              <span class="blog-category">Mobile & Frontend</span>
+              <span>•</span>
+              <span>4 min read</span>
+            </div>
+            <h3 class="blog-title">Mastering State Management Across React & Flutter</h3>
+            <p class="blog-excerpt">
+              A comparative analysis of reactive state management patterns across web and mobile frameworks.
+            </p>
+          </div>
+          <a href="blog-post.html" class="blog-link">
+            Read Article →
+          </a>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container footer-inner">
+      <div>
+        © <span id="year"></span> <strong>Piyumal</strong> (Dinux). All rights reserved.
+      </div>
+      <div class="social-links" aria-label="Social Links">
+        <a href="https://github.com" target="_blank" rel="noopener" aria-label="GitHub">GitHub</a>
+        <a href="https://linkedin.com" target="_blank" rel="noopener" aria-label="LinkedIn">LinkedIn</a>
+        <a href="https://twitter.com" target="_blank" rel="noopener" aria-label="X / Twitter">X</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    // Theme Toggle Functionality
+    const themeToggleBtn = document.getElementById('theme-toggle');
+
+    themeToggleBtn.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+    });
+
+    // Mobile Navigation Drawer Toggle
+    const mobileToggle = document.getElementById('mobile-toggle');
+    const navLinks = document.getElementById('primary-navigation');
+
+    mobileToggle?.addEventListener('click', () => {
+      const isExpanded = mobileToggle.getAttribute('aria-expanded') === 'true';
+      mobileToggle.setAttribute('aria-expanded', !isExpanded);
+      navLinks.classList.toggle('active');
+    });
+
+    // Dynamic Year
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+
+</html>

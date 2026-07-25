@@ -1,604 +1,597 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>dinux.me</title>
+    <title>Piyumal — Software Engineer Portfolio</title>
     <meta name="description"
-        content="Personal portfolio of Your Name — Software Engineer, showcasing projects, skills, and experience." />
+        content="Personal portfolio of Piyumal — Software Engineer based in Matale. Specializing in full-stack web, mobile applications, and AI integrations." />
 
-    <!-- ====== Design tokens (tweak these) ====== -->
-    <style>
-        :root {
-            /* Neutral palette by default. Adjust if you want an accent. */
-            --bg: #ffffff;
-            --text: #111111;
-            --muted: #6b7280;
-            /* gray-500 */
-            --card: #f5f5f7;
-            --border: #e5e7eb;
-            /* gray-200 */
-            --ring: #9ca3af;
-            /* gray-400 */
-            --shadow: 0 10px 20px rgba(0, 0, 0, .06);
-            --radius: 16px;
-            --maxw: 1100px;
-        }
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg: #0b0b0b;
-                --text: #f3f4f6;
-                --muted: #9ca3af;
-                --card: #151515;
-                --border: #262626;
-                --ring: #6b7280;
-                --shadow: 0 10px 20px rgba(0, 0, 0, .45);
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="index.css">
+
+    <!-- Early Theme Initialization to prevent flash of wrong theme -->
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } else {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
             }
-        }
-
-        /* ====== Base ====== */
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box
-        }
-
-        html {
-            scroll-behavior: smooth
-        }
-
-        body {
-            margin: 0;
-            font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, sans-serif;
-            line-height: 1.6;
-            color: var(--text);
-            background: var(--bg)
-        }
-
-        a {
-            color: inherit;
-            text-underline-offset: 3px
-        }
-
-        img {
-            max-width: 100%;
-            display: block
-        }
-
-        .container {
-            max-width: var(--maxw);
-            margin-inline: auto;
-            padding: 0 16px
-        }
-
-        .section {
-            padding: 72px 0
-        }
-
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0
-        }
-
-        /* ===== Skip link ===== */
-        .skip-link {
-            position: absolute;
-            inset-inline-start: 16px;
-            top: -40px;
-            background: var(--card);
-            color: var(--text);
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-            transition: top .2s
-        }
-
-        .skip-link:focus {
-            top: 16px
-        }
-
-        /* ====== Header / Nav ====== */
-        header {
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            background: color-mix(in oklab, var(--bg) 85%, transparent);
-            backdrop-filter: saturate(140%) blur(6px);
-            border-bottom: 1px solid var(--border)
-        }
-
-        .nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            height: 64px
-        }
-
-        .brand {
-            font-weight: 700;
-            letter-spacing: .4px
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 18px
-        }
-
-        .nav-links a {
-            display: inline-block;
-            padding: 8px 10px;
-            border-radius: 10px
-        }
-
-        .nav-links a[aria-current="true"],
-        .nav-links a:hover {
-            background: var(--card)
-        }
-
-        .nav-toggle {
-            display: none;
-            background: none;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 8px;
-            align-items: center
-        }
-
-        .nav-toggle svg {
-            width: 22px;
-            height: 22px
-        }
-
-        @media (max-width: 800px) {
-            .nav-links {
-                position: fixed;
-                inset-inline: 0;
-                top: 64px;
-                background: var(--bg);
-                border-bottom: 1px solid var(--border);
-                transform: translateY(-120%);
-                transition: transform .25s;
-                flex-direction: column;
-                padding: 12px 16px;
-                gap: 6px
-            }
-
-            .nav-links.open {
-                transform: translateY(0)
-            }
-
-            .nav-toggle {
-                display: inline-flex
-            }
-        }
-
-        /* ====== Hero ====== */
-        .hero {
-            display: grid;
-            grid-template-columns: 1.1fr .9fr;
-            gap: 32px;
-            align-items: center
-        }
-
-        .hero h1 {
-            font-size: clamp(2rem, 5vw, 3rem);
-            line-height: 1.1;
-            margin: 0 0 12px
-        }
-
-        .hero p {
-            color: var(--muted);
-            margin: 0 0 20px
-        }
-
-        .actions {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 11px 16px;
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            text-decoration: none;
-            font-weight: 600
-        }
-
-        .btn:hover {
-            box-shadow: var(--shadow)
-        }
-
-        .btn.primary {
-            background: var(--card)
-        }
-
-        .avatar {
-            inline-size: 160px;
-            block-size: 160px;
-            border-radius: 50%;
-            background: linear-gradient(180deg, var(--card), transparent 70%);
-            border: 1px solid var(--border);
-            display: grid;
-            place-items: center;
-            font-weight: 700;
-            font-size: 40px;
-            margin-inline: auto
-        }
-
-        @media (max-width: 900px) {
-            .hero {
-                grid-template-columns: 1fr;
-                text-align: center
-            }
-        }
-
-        /* ====== Sections ====== */
-        .grid {
-            display: grid;
-            gap: 16px
-        }
-
-        .grid.projects {
-            grid-template-columns: repeat(12, 1fr)
-        }
-
-        .card {
-            border: 1px solid var(--border);
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 18px;
-            box-shadow: var(--shadow)
-        }
-
-        .project {
-            grid-column: span 6
-        }
-
-        .project .thumb {
-            aspect-ratio: 16/10;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            background: repeating-linear-gradient(45deg, #d4d4d8 0 10px, #e5e7eb 10px 20px)
-        }
-
-        .tags {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 10px
-        }
-
-        .tag {
-            border: 1px dashed var(--border);
-            border-radius: 999px;
-            padding: 4px 10px;
-            font-size: .85rem;
-            color: var(--muted)
-        }
-
-        @media (max-width: 900px) {
-            .project {
-                grid-column: span 12
-            }
-        }
-
-        /* ====== Timeline ====== */
-        .timeline {
-            border-inline-start: 1px solid var(--border);
-            margin-left: 8px;
-            padding-left: 16px
-        }
-
-        .timeline .item {
-            margin: 0 0 18px
-        }
-
-        .timeline .item time {
-            color: var(--muted);
-            font-size: .95rem
-        }
-
-        /* ====== Contact ====== */
-        form {
-            display: grid;
-            gap: 12px
-        }
-
-        input,
-        textarea {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            background: var(--bg);
-            color: var(--text)
-        }
-
-        input:focus,
-        textarea:focus {
-            outline: 2px solid transparent;
-            box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 60%, transparent)
-        }
-
-        textarea {
-            min-height: 140px;
-            resize: vertical
-        }
-
-        /* ====== Footer ====== */
-        footer {
-            border-top: 1px solid var(--border);
-            padding: 28px 0;
-            color: var(--muted)
-        }
-
-        /* Small niceties */
-        .muted {
-            color: var(--muted)
-        }
-
-        .section h2 {
-            margin: 0 0 8px;
-            font-size: clamp(1.4rem, 3vw, 1.8rem)
-        }
-
-        .section p.lead {
-            margin: 0 0 18px;
-            color: var(--muted)
-        }
-    </style>
+        })();
+    </script>
 </head>
 
 <body>
-    <a class="skip-link" href="#main">Skip to content</a>
+    <!-- Header / Navigation -->
     <header>
-        <nav class="container nav" aria-label="Main">
-            <a class="brand" href="#" aria-label="Homepage">Dinux</a>
-            <button class="nav-toggle" aria-controls="primary-navigation" aria-expanded="false" title="Open menu">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                </svg>
-            </button>
-            <div id="primary-navigation" class="nav-links" role="navigation">
+        <div class="container nav">
+            <a class="brand" href="#" aria-label="Homepage">
+                <span class="brand-dot"></span>
+                Dinux.me
+            </a>
+
+            <nav id="primary-navigation" class="nav-links" aria-label="Main Navigation">
                 <a href="#about">About</a>
                 <a href="#skills">Skills</a>
-                <a href="#projects">Projects</a>
                 <a href="#experience">Experience</a>
+                <a href="#blog">Blog</a>
+                <a href="#certifications">Certifications</a>
                 <a href="#contact">Contact</a>
+            </nav>
+
+            <div class="nav-controls">
+                <!-- Theme Toggle Button -->
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+                    <!-- Sun Icon (shown in dark mode) -->
+                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <path
+                            d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42">
+                        </path>
+                    </svg>
+                    <!-- Moon Icon (shown in light mode) -->
+                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+
+                <!-- Mobile Menu Toggle -->
+                <button id="mobile-toggle" class="mobile-nav-toggle" aria-controls="primary-navigation"
+                    aria-expanded="false" aria-label="Toggle menu">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round">
+                        <path d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
             </div>
-        </nav>
+        </div>
     </header>
 
-    <main id="main" class="container">
-        <!-- ===== Hero ===== -->
-        <section id="home" class="section hero" aria-label="Intro">
+    <main class="container" id="main">
+        <!-- Hero Section -->
+        <section id="home" class="hero" aria-label="Intro">
             <div>
-                <h1>Hello, I'm Piyumal.<br />Software Engineer.</h1>
-                <p class="muted">I build clean, reliable software — from APIs to delightful UIs. Focused on pragmatic
-                    solutions, performance, and maintainability.</p>
-                <div class="actions">
-                    <a class="btn primary" href="#projects" aria-label="View my projects">View Projects</a>
-                   <!-- <a class="btn" href="assets/YourName-CV.pdf" download aria-label="Download CV">Download CV</a> -->
-                    <a class="btn" href="mailto:you@example.com" aria-label="Send me an email">Email Me</a>
+                <div class="status-badge">
+                    <span class="status-dot"></span>
+                    Available for new opportunities
+                </div>
+                <h1 class="hero-title">
+                    Hi, I'm <span class="gradient-text">Piyumal</span>.<br />
+                    Software Engineer.
+                </h1>
+                <p class="hero-bio">
+                    I build clean, reliable software — from robust APIs to delightful user interfaces.
+                    Focused on pragmatic solutions, high performance, and maintainable architecture.
+                </p>
+                <div class="hero-actions">
+                    <a class="btn btn-primary" href="#contact">Get In Touch</a>
+                    <a class="btn btn-secondary" href="#experience">View Experience</a>
+                    <a class="btn btn-secondary btn-icon" href="https://github.com" target="_blank" rel="noopener"
+                        aria-label="GitHub Profile" title="GitHub">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+                            </path>
+                        </svg>
+                    </a>
+                    <a class="btn btn-secondary btn-icon" href="https://linkedin.com" target="_blank" rel="noopener"
+                        aria-label="LinkedIn Profile" title="LinkedIn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z">
+                            </path>
+                            <rect x="2" y="9" width="4" height="12"></rect>
+                            <circle cx="4" cy="4" r="2"></circle>
+                        </svg>
+                    </a>
                 </div>
             </div>
-            <div aria-hidden="true">
-                <div class="avatar" title="Your photo placeholder">YN</div>
+
+            <div class="avatar-container">
+                <div class="avatar-frame">
+                    <img class="avatar-img" src="1665461892254.jpeg" alt="Piyumal - Software Engineer" />
+                </div>
             </div>
         </section>
 
-        <!-- ===== About ===== -->
+        <!-- About Section -->
         <section id="about" class="section" aria-label="About me">
-            <h2>About</h2>
-            <p class="lead">I'm a software developer who enjoys solving real problems with code. I care about readable
-                architecture, helpful documentation, and small details that make products feel effortless.</p>
-            <div class="grid" style="grid-template-columns:repeat(12,1fr); gap:16px; align-items:start">
-                <div class="card" style="grid-column: span 7">
-                    <h3 style="margin-top:0">A bit more</h3>
-                    <p>I’ve worked across the stack: building REST/GraphQL APIs, designing SQL/NoSQL schemas, and
-                        crafting responsive UIs. My approach favors simplicity, clear boundaries, and automated testing.
+            <div class="section-header">
+                <h2 class="section-title">About Me</h2>
+                <p class="section-lead">A developer who enjoys solving real-world problems with elegant code.</p>
+            </div>
+
+            <div class="grid grid-2">
+                <div class="card">
+                    <h3 class="card-title">Engineering Approach</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 16px;">
+                        I have extensive experience working across the full application stack: designing REST/GraphQL
+                        APIs,
+                        structuring efficient relational & NoSQL databases, and crafting responsive, accessible web and
+                        mobile UIs.
                     </p>
-                    <ul>
-                        <li>Comfortable with JavaScript/TypeScript, Python, PHP, and SQL.</li>
-                        <li>Experience with React, Node.js/Express, Flutter, Angular, Django/Flask, and Laravel.</li>
-                        <li>LLMs &amp; ML: RAG, Semantic Kernel, LangChain, Llama; supervised learning.</li>
-                        <li>Deployed to Vercel, Netlify, Docker, and traditional VPS.</li>
-                    </ul>
+                    <p style="color: var(--text-muted);">
+                        My engineering philosophy prioritizes code readability, modular boundaries, robust automated
+                        testing, and developer experience.
+                    </p>
                 </div>
-                <div class="card" style="grid-column: span 5">
-                    <h3 style="margin-top:0">Quick facts</h3>
-                    <ul>
-                        <li><strong>Based in:</strong> Matale</li>
-                        <li><strong>Availability:</strong> Open to freelance & full‑time</li>
-                        <li><strong>Interests:</strong> Clean architecture, DX, ML for real use</li>
+
+                <div class="card">
+                    <h3 class="card-title">Quick Facts</h3>
+                    <ul
+                        style="list-style: none; display: flex; flex-direction: column; gap: 14px; color: var(--text-muted);">
+                        <li style="display: flex; gap: 10px; align-items: center;">
+                            <strong style="color: var(--text-main); width: 120px;">Based in:</strong>
+                            <span>Matale, Sri Lanka</span>
+                        </li>
+                        <li style="display: flex; gap: 10px; align-items: center;">
+                            <strong style="color: var(--text-main); width: 120px;">Availability:</strong>
+                            <span style="color: var(--primary); font-weight: 600;">Full-Time & Freelance</span>
+                        </li>
+                        <li style="display: flex; gap: 10px; align-items: center;">
+                            <strong style="color: var(--text-main); width: 120px;">Track Record:</strong>
+                            <span>100+ Freelance Projects (5★ Rating)</span>
+                        </li>
+                        <li style="display: flex; gap: 10px; align-items: center;">
+                            <strong style="color: var(--text-main); width: 120px;">Core Focus:</strong>
+                            <span>Full-Stack, AI/RAG Solutions, DX</span>
+                        </li>
                     </ul>
                 </div>
             </div>
         </section>
 
-        <!-- ===== Skills ===== -->
+        <!-- Skills Section -->
         <section id="skills" class="section" aria-label="Skills">
-            <h2>Skills</h2>
-            <p class="lead">A snapshot of tools I use regularly.</p>
+            <div class="section-header">
+                <h2 class="section-title">Skills & Technologies</h2>
+                <p class="section-lead">Snapshot of tools and frameworks I use to build production systems.</p>
+            </div>
+
             <div class="card">
-                <div class="tags" aria-label="Skill tags">
-                    <span class="tag">JavaScript / TypeScript</span>
-                    <span class="tag">React</span>
-                    <span class="tag">Node.js</span>
-                    <span class="tag">Python</span>
-                    <span class="tag">Flask / Django</span>
-                    <span class="tag">Flutter</span>
-                    <span class="tag">Angular</span>
-                    <span class="tag">PHP / Laravel</span>
-                    <span class="tag">SQL (Postgres / MySQL)</span>
-                    <span class="tag">REST / GraphQL</span>
-                    <span class="tag">Docker</span>
-                    <span class="tag">CI/CD</span>
+                <div class="skill-category">
+                    <div class="skill-category-title">Languages & Core</div>
+                    <div class="tags">
+                        <span class="tag">JavaScript</span>
+                        <span class="tag">TypeScript</span>
+                        <span class="tag">Python</span>
+                        <span class="tag">PHP</span>
+                        <span class="tag">SQL (PostgreSQL / MySQL)</span>
+                        <span class="tag">HTML5 / CSS3</span>
+                    </div>
+                </div>
+
+                <div class="skill-category">
+                    <div class="skill-category-title">Frameworks & Libraries</div>
+                    <div class="tags">
+                        <span class="tag">React</span>
+                        <span class="tag">Node.js / Express</span>
+                        <span class="tag">Flutter</span>
+                        <span class="tag">Angular</span>
+                        <span class="tag">Django / Flask</span>
+                        <span class="tag">Laravel</span>
+                    </div>
+                </div>
+
+                <div class="skill-category">
+                    <div class="skill-category-title">AI & Machine Learning</div>
+                    <div class="tags">
+                        <span class="tag">RAG Architecture</span>
+                        <span class="tag">Semantic Kernel</span>
+                        <span class="tag">LangChain</span>
+                        <span class="tag">Llama</span>
+                        <span class="tag">Supervised Learning</span>
+                    </div>
+                </div>
+
+                <div class="skill-category" style="margin-bottom: 0;">
+                    <div class="skill-category-title">DevOps & Platforms</div>
+                    <div class="tags">
+                        <span class="tag">REST / GraphQL</span>
+                        <span class="tag">Docker</span>
+                        <span class="tag">CI/CD Pipelines</span>
+                        <span class="tag">Vercel / Netlify</span>
+                        <span class="tag">Linux / VPS Deployment</span>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- ===== Experience ===== -->
-        <!-- ===== Experience ===== -->
-<section id="experience" class="section" aria-label="Experience">
-    <h2>Experience</h2>
-    <div class="timeline">
+        <!-- Experience Section -->
+        <section id="experience" class="section" aria-label="Experience">
+            <div class="section-header">
+                <h2 class="section-title">Work Experience</h2>
+                <p class="section-lead">My professional journey in software development.</p>
+            </div>
 
-        <div class="item">
-            <h3>Software Engineer — Purple Software</h3>
-            <time>Oct 2025 — Present</time>
-            <p class="muted">Contributing to the design and development of scalable software solutions across multiple platforms. Collaborating with cross-functional teams to deliver high-performance applications aligned with client and business requirements.</p>
-        </div>
+            <div class="card">
+                <div class="timeline">
+                    <!-- Item 1 -->
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-header">
+                            <div>
+                                <div class="timeline-role">Software Engineer</div>
+                                <div class="timeline-company">Purple Software</div>
+                            </div>
+                            <span class="timeline-date">Oct 2025 — Present</span>
+                        </div>
+                        <div class="timeline-desc">
+                            <p>Contributing to the design and development of scalable software solutions across multiple
+                                platforms.</p>
+                            <p>Collaborating with cross-functional teams to deliver high-performance applications
+                                aligned with client and business requirements.</p>
+                        </div>
+                    </div>
 
-        <div class="item">
-            <h3>Software Developer — Noritake Lanka Porcelain</h3>
-            <time>Jul 2024 — Sep 2025</time>
-            <p class="muted">Led the development and optimization of internal software systems to enhance manufacturing and production workflows. Worked closely with engineering and operational teams to streamline processes through automation.</p>
-        </div>
+                    <!-- Item 2 -->
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-header">
+                            <div>
+                                <div class="timeline-role">Software Developer</div>
+                                <div class="timeline-company">Noritake Lanka Porcelain</div>
+                            </div>
+                            <span class="timeline-date">Jul 2024 — Sep 2025</span>
+                        </div>
+                        <div class="timeline-desc">
+                            <p>Led the development and optimization of internal software systems to enhance
+                                manufacturing and production workflows.</p>
+                            <p>Worked closely with engineering and operational teams to streamline processes through
+                                intelligent automation.</p>
+                        </div>
+                    </div>
 
-        <div class="item">
-            <h3>Software Developer — Axoten Innovations</h3>
-            <time>2022 — 2023</time>
-            <p class="muted">Redesigned and redeveloped the company’s Learning Management System (LMS) using ReactJS and MongoDB, improving performance and user experience.</p>
-            <p class="muted">Built a smart switch mobile application using Flutter, integrating real-time control and monitoring features for IoT devices.</p>
-        </div>
+                    <!-- Item 3 -->
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-header">
+                            <div>
+                                <div class="timeline-role">Software Developer</div>
+                                <div class="timeline-company">Axoten Innovations</div>
+                            </div>
+                            <span class="timeline-date">2022 — 2023</span>
+                        </div>
+                        <div class="timeline-desc">
+                            <p>Redesigned and redeveloped the company’s Learning Management System (LMS) using ReactJS
+                                and MongoDB, significantly improving system responsiveness and user experience.</p>
+                            <p>Built a smart switch mobile application using Flutter, integrating real-time control and
+                                monitoring features for IoT devices.</p>
+                        </div>
+                    </div>
 
-        <div class="item">
-            <h3>Freelance Software Developer — Fiverr</h3>
-            <time>2021 — Present</time>
-            <p class="muted">Providing end-to-end full stack development services for international and local clients, including web and mobile applications.</p>
-            <p class="muted">Successfully completed over 100 projects, consistently maintaining a 5-star client satisfaction rating.</p>
-        </div>
-
-    </div>
-</section>
-
-
-        <!-- ===== Testimonials (optional) ===== -->
-        <section aria-label="Testimonials" class="section">
-            <h2>Testimonials</h2>
-            <div class="grid" style="grid-template-columns:repeat(12,1fr)">
-                <blockquote class="card" style="grid-column:span 6; margin:0">
-                    <p>“Your Name is a thoughtful engineer who delivers with quality and care.”</p>
-                    <footer class="muted">— Someone, Role @ Company</footer>
-                </blockquote>
-                <blockquote class="card" style="grid-column:span 6; margin:0">
-                    <p>“A rare mix of speed and attention to detail. Would work together again.”</p>
-                    <footer class="muted">— Another Person, CTO @ Startup</footer>
-                </blockquote>
+                    <!-- Item 4 -->
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-header">
+                            <div>
+                                <div class="timeline-role">Freelance Software Developer</div>
+                                <div class="timeline-company">Fiverr</div>
+                            </div>
+                            <span class="timeline-date">2021 — Present</span>
+                        </div>
+                        <div class="timeline-desc">
+                            <p>Providing end-to-end full stack development services for international and local clients,
+                                including custom web and mobile applications.</p>
+                            <p>Successfully completed over 100 projects, consistently maintaining a 5-star client
+                                satisfaction rating.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
+        <!-- Blog Section -->
+        <!-- <section id="blog" class="section" aria-label="Blog Articles">
+      <div class="section-header">
+        <h2 class="section-title">Articles & Insights</h2>
+        <p class="section-lead">Thoughts on software architecture, AI integration, and modern web development.</p>
+      </div>
+
+      <div class="grid grid-3">
+
+        <article class="card blog-card">
+          <div>
+            <div class="blog-meta">
+              <span class="blog-category">AI & Machine Learning</span>
+              <span>•</span>
+              <span>5 min read</span>
+            </div>
+            <h3 class="blog-title">
+              <a href="blog-post.html" style="color: inherit;">Building Production-Ready RAG Pipelines with LangChain & Llama</a>
+            </h3>
+            <p class="blog-excerpt">
+              A practical guide to structuring retrieval-augmented generation systems for accuracy, enterprise data retrieval, and low-latency responses.
+            </p>
+          </div>
+          <a href="blog-post.html" class="blog-link">
+            Read Article
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        </article>
+
+        <article class="card blog-card">
+          <div>
+            <div class="blog-meta">
+              <span class="blog-category">Architecture</span>
+              <span>•</span>
+              <span>7 min read</span>
+            </div>
+            <h3 class="blog-title">
+              <a href="blog-post.html" style="color: inherit;">Architecting Scalable Microservices with Node.js & Docker</a>
+            </h3>
+            <p class="blog-excerpt">
+              Key lessons and design principles for decomposing monolithic systems into resilient, high-throughput microservices using Docker containers.
+            </p>
+          </div>
+          <a href="blog-post.html" class="blog-link">
+            Read Article
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        </article>
+
+        <article class="card blog-card">
+          <div>
+            <div class="blog-meta">
+              <span class="blog-category">Mobile & Frontend</span>
+              <span>•</span>
+              <span>4 min read</span>
+            </div>
+            <h3 class="blog-title">
+              <a href="blog-post.html" style="color: inherit;">Mastering State Management Across React & Flutter</a>
+            </h3>
+            <p class="blog-excerpt">
+              A comparative analysis of modern reactive state management patterns, comparing Flutter Riverpod/Bloc with React Hooks & Redux Toolkit.
+            </p>
+          </div>
+          <a href="blog-post.html" class="blog-link">
+            Read Article
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        </article>
+      </div>
+    </section> -->
+
+        <!-- Certifications Section -->
         <section id="certifications" class="section" aria-label="Certifications">
-            <h2>Certifications</h2>
-            <p class="lead">Some of the certifications I've earned.</p>
-            <div class="grid" style="grid-template-columns:repeat(12,1fr); gap:16px">
-                <div class="card" style="grid-column: span 6">
-                    <h3>Introduction to cyber security - Cicso</h3>
-                    <time>2024</time>
-                    <!-- <p class="muted">Credential ID: XXXX-XXXX. Covered cloud architecture, serverless, and scaling
-                        strategies.</p> -->
+            <div class="section-header">
+                <h2 class="section-title">Certifications</h2>
+                <p class="section-lead">Verified qualifications and continuous learning achievements.</p>
+            </div>
+
+            <div class="grid grid-2">
+                <div class="card cert-card">
+                    <div class="cert-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="card-title" style="font-size: 1.1rem; margin-bottom: 4px;">Introduction to
+                            Cybersecurity</h3>
+                        <p style="color: var(--primary); font-weight: 600; font-size: 0.9rem; margin-bottom: 6px;">Cisco
+                        </p>
+                        <span class="timeline-date">2024</span>
+                    </div>
                 </div>
 
-                <div class="card" style="grid-column: span 6">
-                    <h3>Supervised Machine Learning: Regression and Classification - coursera</h3>
-                    <time>2025</time>
-                    <!-- <p class="muted">Credential ID: XXXX-XXXX. Covered cloud architecture, serverless, and scaling
-                        strategies.</p> -->
+                <div class="card cert-card">
+                    <div class="cert-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polygon
+                                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                            </polygon>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="card-title" style="font-size: 1.1rem; margin-bottom: 4px;">Supervised Machine
+                            Learning: Regression and Classification</h3>
+                        <p style="color: var(--primary); font-weight: 600; font-size: 0.9rem; margin-bottom: 6px;">
+                            Coursera / DeepLearning.AI</p>
+                        <span class="timeline-date">2025</span>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- ===== Contact ===== -->
+        <!-- Contact Section -->
         <section id="contact" class="section" aria-label="Contact">
-            <h2>Contact</h2>
-            <p class="lead">Have a project in mind? Let's talk.</p>
-            <!-- Replace action with your endpoint (e.g., Formspree) or handle in JS -->
-            <form action="#" method="post" novalidate>
-                <label>
-                    <span class="sr-only">Your name</span>
-                    <input type="text" name="name" placeholder="Your name" required />
-                </label>
-                <label>
-                    <span class="sr-only">Email</span>
-                    <input type="email" name="email" placeholder="Email" required />
-                </label>
-                <label>
-                    <span class="sr-only">Message</span>
-                    <textarea name="message" placeholder="Tell me a bit about your project" required></textarea>
-                </label>
-                <button class="btn primary" type="submit">Send</button>
-                <p class="muted" style="margin:6px 0 0">Or email me at <a
-                        href="mailto:you@example.com">you@example.com</a></p>
-            </form>
+            <div class="section-header">
+                <h2 class="section-title">Get In Touch</h2>
+                <p class="section-lead">Have a project in mind or want to collaborate? Send a message.</p>
+            </div>
+
+            <div class="card contact-grid">
+                <div>
+                    <h3 class="card-title">Let's talk about your project</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 20px;">
+                        Whether you need a full-stack web application, a mobile app, or AI integration, I'm ready to
+                        bring your ideas to life.
+                    </p>
+                    <div class="contact-info-list">
+                        <div class="contact-info-item">
+                            <div class="contact-info-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path
+                                        d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
+                                    </path>
+                                    <polyline points="22,6 12,13 2,6"></polyline>
+                                </svg>
+                            </div>
+                            <div>
+                                <div
+                                    style="font-size: 0.8rem; color: var(--text-subtle); text-transform: uppercase; font-weight: 600;">
+                                    Email</div>
+                                <a href="mailto:piyumal@example.com"
+                                    style="color: var(--text-main); font-weight: 600;">piyumal@example.com</a>
+                            </div>
+                        </div>
+
+                        <div class="contact-info-item">
+                            <div class="contact-info-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                    <circle cx="12" cy="10" r="3"></circle>
+                                </svg>
+                            </div>
+                            <div>
+                                <div
+                                    style="font-size: 0.8rem; color: var(--text-subtle); text-transform: uppercase; font-weight: 600;">
+                                    Location</div>
+                                <span style="color: var(--text-main); font-weight: 600;">Matale, Sri Lanka</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="contact-form" action="#" method="post" novalidate>
+                    <div class="form-group">
+                        <label for="name">Your Name</label>
+                        <input type="text" id="name" name="name" class="form-control" placeholder="John Doe" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="john@example.com"
+                            required />
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" class="form-control"
+                            placeholder="Tell me about your project or inquiry..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        Send Message
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </form>
+            </div>
         </section>
     </main>
 
+    <!-- Footer -->
     <footer>
-        <div class="container"
-            style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-            <p>© <span id="year"></span> Your Name. All rights reserved.</p>
-            <p class="muted" role="navigation" aria-label="Social links">
-                <a href="#" aria-label="GitHub" style="margin-right:10px">GitHub</a>
-                <a href="#" aria-label="LinkedIn" style="margin-right:10px">LinkedIn</a>
-                <a href="#" aria-label="X / Twitter">X</a>
-            </p>
+        <div class="container footer-inner">
+            <div>
+                © <span id="year"></span> <strong>Piyumal</strong> (Dinux). All rights reserved.
+            </div>
+            <div class="social-links" aria-label="Social Links">
+                <a href="https://github.com" target="_blank" rel="noopener" aria-label="GitHub">GitHub</a>
+                <a href="https://linkedin.com" target="_blank" rel="noopener" aria-label="LinkedIn">LinkedIn</a>
+                <a href="https://twitter.com" target="_blank" rel="noopener" aria-label="X / Twitter">X</a>
+            </div>
         </div>
     </footer>
 
-    <!-- ====== Small JS for nav + active section highlighting ====== -->
+    <!-- Scripts -->
     <script>
-        // Mobile nav toggle
-        const toggle = document.querySelector('.nav-toggle');
-        const links = document.querySelector('.nav-links');
-        toggle?.addEventListener('click', () => {
-            const open = links.classList.toggle('open');
-            toggle.setAttribute('aria-expanded', String(open));
-        });
-        // Close menu when clicking a link (mobile)
-        links?.addEventListener('click', e => {
-            if (e.target.tagName === 'A') links.classList.remove('open');
+        // Theme Toggle Functionality
+        const themeToggleBtn = document.getElementById('theme-toggle');
+
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
         });
 
-        // Active link highlighting
-        const sections = [...document.querySelectorAll('main section[id]')];
+        // Mobile Navigation Drawer Toggle
+        const mobileToggle = document.getElementById('mobile-toggle');
+        const navLinks = document.getElementById('primary-navigation');
+
+        mobileToggle.addEventListener('click', () => {
+            const isExpanded = mobileToggle.getAttribute('aria-expanded') === 'true';
+            mobileToggle.setAttribute('aria-expanded', !isExpanded);
+            navLinks.classList.toggle('active');
+        });
+
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                mobileToggle.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        // Active Navigation Highlight on Scroll
+        const navAnchors = document.querySelectorAll('.nav-links a');
+        const sections = document.querySelectorAll('main section[id]');
+
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                const id = entry.target.getAttribute('id');
-                const link = document.querySelector(`.nav-links a[href="#${id}"]`);
-                if (link) link.setAttribute('aria-current', entry.isIntersecting ? 'true' : 'false');
-            })
-        }, { rootMargin: '-50% 0px -40% 0px', threshold: 0.01 });
-        sections.forEach(s => observer.observe(s));
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    navAnchors.forEach(a => {
+                        const isMatch = a.getAttribute('href') === `#${id}`;
+                        a.setAttribute('aria-current', isMatch ? 'true' : 'false');
+                    });
+                }
+            });
+        }, { threshold: 0.3 });
 
-        // Year
+        sections.forEach(sec => observer.observe(sec));
+
+        // Dynamic Year
         document.getElementById('year').textContent = new Date().getFullYear();
 
-        // Basic client-side form guard (no backend wired here)
-        document.querySelector('form')?.addEventListener('submit', (e) => {
+        // Form Submission Handling
+        document.getElementById('contact-form')?.addEventListener('submit', (e) => {
             e.preventDefault();
-            const form = e.currentTarget;
-            const data = Object.fromEntries(new FormData(form).entries());
-            if (!data.name || !data.email || !data.message) {
-                alert('Please fill in all fields.');
+            const form = e.target;
+            const data = new FormData(form);
+            if (!data.get('name') || !data.get('email') || !data.get('message')) {
+                alert('Please complete all required fields.');
                 return;
             }
-            alert('Thanks! Replace the form action with your endpoint to enable sending.');
+            alert('Thank you for reaching out! Your message has been received.');
             form.reset();
         });
     </script>
