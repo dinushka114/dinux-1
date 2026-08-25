@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SubSync Pro - Subtitle Timing Fixer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Sinhala:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top App Header -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="brand-logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="4" width="20" height="16" rx="3"></rect>
+                        <path d="M7 15h4M15 15h2M7 11h10"></path>
+                    </svg>
+                </div>
+                <div class="brand-info">
+                    <h1>SubSync <span>Studio</span></h1>
+                    <span class="brand-tag">Subtitle Timing & Re-sync</span>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <button id="btnLoadSample" class="btn btn-secondary" title="Load sample English & Sinhala files">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    <span>Load Demo Files</span>
+                </button>
+                <div class="btn-group">
+                    <button id="btnUndo" class="btn btn-icon" title="Undo (Ctrl+Z)" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10h10a5 5 0 015 5v2a5 5 0 01-5 5H6"></path><path d="M7 6L3 10l4 4"></path></svg>
+                    </button>
+                    <button id="btnRedo" class="btn btn-icon" title="Redo (Ctrl+Y)" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10H11a5 5 0 00-5 5v2a5 5 0 005 5h7"></path><path d="M17 6l4 4-4 4"></path></svg>
+                    </button>
+                    <button id="btnReset" class="btn btn-icon btn-ghost-danger" title="Reset changes" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg>
+                    </button>
+                </div>
+                <button id="btnExportSrt" class="btn btn-primary" disabled>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>
+                    <span>Download Fixed SRT</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Compact File Status Pill Bar (Shown when files loaded) -->
+        <div class="file-status-bar" id="fileStatusBar" style="display: none;">
+            <div class="file-pills">
+                <div class="file-pill ref-pill">
+                    <span class="pill-badge en">EN</span>
+                    <span class="pill-title" id="barRefName">english.srt</span>
+                    <span class="pill-meta" id="barRefCount">0 cues</span>
+                </div>
+                <div class="pill-arrow">⟷</div>
+                <div class="file-pill target-pill">
+                    <span class="pill-badge si">සිං</span>
+                    <span class="pill-title" id="barTargetName">sinhala.srt</span>
+                    <span class="pill-meta" id="barTargetCount">0 cues</span>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-ghost" id="btnToggleUploadSection">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg>
+                Change Files
+            </button>
+        </div>
+
+        <!-- File Upload Section (Expands/Collapses) -->
+        <section class="upload-section" id="uploadSection">
+            <div class="upload-grid">
+                <!-- Reference File Card -->
+                <div class="upload-card ref-card" id="refDropZone">
+                    <input type="file" id="refFileInput" accept=".srt,.vtt,.txt" class="file-input-hidden">
+                    <div class="upload-card-content">
+                        <div class="upload-badge en-badge">Reference (Working Timing)</div>
+                        <div class="upload-icon-circle en-circle">
+                            <span>EN</span>
+                        </div>
+                        <h3>Reference Subtitle (English)</h3>
+                        <p class="file-name" id="refFileName">Drop english.srt here or click to browse</p>
+                        <div class="card-stats" id="refStats" style="display:none;">
+                            <span class="stat-item"><strong id="refCount">0</strong> cues</span>
+                            <span class="stat-item"><strong id="refDuration">00:00</strong> duration</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Target File Card -->
+                <div class="upload-card target-card" id="targetDropZone">
+                    <input type="file" id="targetFileInput" accept=".srt,.vtt,.txt" class="file-input-hidden">
+                    <div class="upload-card-content">
+                        <div class="upload-badge target-badge">Target to Fix (Timing Mismatch)</div>
+                        <div class="upload-icon-circle sin-circle">
+                            <span>සිං</span>
+                        </div>
+                        <h3>Target Subtitle (Sinhala)</h3>
+                        <p class="file-name" id="targetFileName">Drop sinhala.srt here or click to browse</p>
+                        <div class="card-stats" id="targetStats" style="display:none;">
+                            <span class="stat-item"><strong id="targetCount">0</strong> cues</span>
+                            <span class="stat-item"><strong id="targetDuration">00:00</strong> duration</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Workspace -->
+        <main class="workspace-layout" id="workspace">
+            <!-- Simplified Sync Toolbox -->
+            <section class="toolbox-card">
+                <div class="tabs-nav">
+                    <button class="tab-btn active" data-tab="twoPointTab">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"></path></svg>
+                        <span>2-Point Anchor Sync</span>
+                    </button>
+                    <button class="tab-btn" data-tab="globalShiftTab">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <span>Quick Shift</span>
+                    </button>
+                    <button class="tab-btn" data-tab="speedFpsTab">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                        <span>FPS / Speed</span>
+                    </button>
+                    <button class="tab-btn" data-tab="sectionSyncTab">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                        <span>Section Shift</span>
+                    </button>
+                    <button class="tab-btn" data-tab="directTransferTab">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                        <span>1:1 Copy</span>
+                    </button>
+                </div>
+
+                <!-- Tab 1: 2-Point Anchor Sync -->
+                <div class="tab-content active" id="twoPointTab">
+                    <div class="anchor-sync-container">
+                        <div class="anchor-points-row">
+                            <!-- Anchor A -->
+                            <div class="anchor-card">
+                                <div class="anchor-title-row">
+                                    <span class="point-badge point-a">Anchor A</span>
+                                    <span class="point-sub">Start dialogue point</span>
+                                </div>
+                                <div class="anchor-fields">
+                                    <div class="field-item">
+                                        <label>EN Ref:</label>
+                                        <input type="text" id="anchorA_ref" placeholder="00:00:02,252" class="code-input">
+                                    </div>
+                                    <div class="field-item">
+                                        <label>SIN Target:</label>
+                                        <input type="text" id="anchorA_target" placeholder="00:00:00,000" class="code-input">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Anchor B -->
+                            <div class="anchor-card">
+                                <div class="anchor-title-row">
+                                    <span class="point-badge point-b">Anchor B</span>
+                                    <span class="point-sub">End dialogue point</span>
+                                </div>
+                                <div class="anchor-fields">
+                                    <div class="field-item">
+                                        <label>EN Ref:</label>
+                                        <input type="text" id="anchorB_ref" placeholder="00:40:55,283" class="code-input">
+                                    </div>
+                                    <div class="field-item">
+                                        <label>SIN Target:</label>
+                                        <input type="text" id="anchorB_target" placeholder="00:40:20,030" class="code-input">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sync Action Block -->
+                            <div class="anchor-action-card">
+                                <div class="metric-readout" id="syncMetrics">
+                                    <span>Ratio: <strong id="metricRatio">1.00000x</strong></span>
+                                    <span>Offset: <strong id="metricOffset">+0.000s</strong></span>
+                                </div>
+                                <div class="anchor-btn-row">
+                                    <button id="btnAutoSuggestAnchors" class="btn btn-secondary btn-sm" title="Auto-detect first & last dialogue cues">
+                                        🪄 Auto-Detect
+                                    </button>
+                                    <button id="btnApplyTwoPoint" class="btn btn-primary">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"></path></svg>
+                                        Sync Now
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Global Shift -->
+                <div class="tab-content" id="globalShiftTab">
+                    <div class="shift-bar">
+                        <div class="shift-input-group">
+                            <label>Shift All Subtitles:</label>
+                            <div class="inline-input">
+                                <input type="number" id="shiftSecondsInput" step="0.05" placeholder="e.g. +2.5" class="code-input">
+                                <span class="input-suffix">sec</span>
+                                <button id="btnApplyCustomShift" class="btn btn-primary btn-sm">Apply Shift</button>
+                            </div>
+                        </div>
+                        <div class="shift-chips-group">
+                            <span class="chips-label">Quick Nudge:</span>
+                            <div class="chips-wrap">
+                                <button class="chip" onclick="app.quickShift(-5.0)">-5s</button>
+                                <button class="chip" onclick="app.quickShift(-1.0)">-1s</button>
+                                <button class="chip" onclick="app.quickShift(-0.5)">-500ms</button>
+                                <button class="chip" onclick="app.quickShift(-0.1)">-100ms</button>
+                                <button class="chip chip-pos" onclick="app.quickShift(+0.1)">+100ms</button>
+                                <button class="chip chip-pos" onclick="app.quickShift(+0.5)">+500ms</button>
+                                <button class="chip chip-pos" onclick="app.quickShift(+1.0)">+1s</button>
+                                <button class="chip chip-pos" onclick="app.quickShift(+5.0)">+5s</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: FPS / Speed -->
+                <div class="tab-content" id="speedFpsTab">
+                    <div class="speed-bar">
+                        <div class="fps-chips-group">
+                            <span class="chips-label">Frame Rate Presets:</span>
+                            <div class="chips-wrap">
+                                <button class="chip" onclick="app.applyFpsRatio(23.976, 25.0)">23.976 &rarr; 25 fps (PAL)</button>
+                                <button class="chip" onclick="app.applyFpsRatio(25.0, 23.976)">25 &rarr; 23.976 fps</button>
+                                <button class="chip" onclick="app.applyFpsRatio(23.976, 24.0)">23.976 &rarr; 24 fps</button>
+                                <button class="chip" onclick="app.applyFpsRatio(24.0, 23.976)">24 &rarr; 23.976 fps</button>
+                                <button class="chip" onclick="app.applyFpsRatio(29.97, 25.0)">29.97 &rarr; 25 fps</button>
+                            </div>
+                        </div>
+                        <div class="custom-speed-group">
+                            <label>Custom Multiplier:</label>
+                            <div class="inline-input">
+                                <input type="number" id="speedMultiplierInput" step="0.0001" placeholder="1.0000" value="1.0000" class="code-input">
+                                <button id="btnApplyCustomSpeed" class="btn btn-primary btn-sm">Scale</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 4: Section Shift -->
+                <div class="tab-content" id="sectionSyncTab">
+                    <div class="section-bar">
+                        <div class="section-inputs">
+                            <div class="field-item">
+                                <label>From Cue #:</label>
+                                <input type="number" id="sectionStartCue" min="1" value="1" style="width: 80px;" class="code-input">
+                            </div>
+                            <div class="field-item">
+                                <label>Or Timestamp:</label>
+                                <input type="text" id="sectionStartTime" placeholder="00:15:00,000" class="code-input">
+                            </div>
+                            <div class="field-item">
+                                <label>Offset (sec):</label>
+                                <input type="number" id="sectionShiftOffset" step="0.1" placeholder="+3.5" style="width: 100px;" class="code-input">
+                            </div>
+                            <button id="btnApplySectionShift" class="btn btn-primary btn-sm">Apply to Section</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 5: 1:1 Direct Transfer -->
+                <div class="tab-content" id="directTransferTab">
+                    <div class="transfer-bar">
+                        <p class="transfer-note">Directly copies Reference timestamps onto Sinhala subtitle lines sequentially.</p>
+                        <div class="transfer-actions">
+                            <label class="checkbox-label"><input type="checkbox" id="chkStrictIndexMatch" checked> Match Cue 1 &rarr; Cue 1</label>
+                            <button id="btnApplyDirectTransfer" class="btn btn-primary btn-sm">Copy Timestamps</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Compact Playback & Live Subtitle Bar -->
+            <section class="playback-card">
+                <div class="playback-controls-row">
+                    <div class="player-buttons">
+                        <button id="btnPlayPause" class="btn btn-icon btn-play" title="Play/Pause simulation (Space)">
+                            <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            <svg id="pauseIcon" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                        </button>
+                        <button id="btnStop" class="btn btn-icon btn-secondary btn-stop" title="Stop & return to start">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>
+                        </button>
+                    </div>
+
+                    <div class="time-readout">
+                        <span id="playerCurrentTime" class="time-current">00:00:00.000</span>
+                        <span class="time-sep">/</span>
+                        <span id="playerTotalTime" class="time-total">00:00:00.000</span>
+                    </div>
+
+                    <div class="timeline-slider-wrap">
+                        <input type="range" id="timelineSlider" min="0" max="1000" value="0" step="0.1">
+                    </div>
+
+                    <div class="speed-selector">
+                        <select id="playbackSpeedSelect">
+                            <option value="0.5">0.5x</option>
+                            <option value="1" selected>1.0x</option>
+                            <option value="2">2.0x</option>
+                            <option value="4">4.0x</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Live Subtitle Dual Preview -->
+                <div class="live-preview-grid">
+                    <div class="live-box ref-live">
+                        <span class="live-tag en-tag">EN Reference</span>
+                        <div class="live-text" id="liveRefText"><em>No subtitle at current time</em></div>
+                    </div>
+                    <div class="live-box target-live">
+                        <span class="live-tag sin-tag">සිං Target</span>
+                        <div class="live-text sinhala-font" id="liveTargetText"><em>No subtitle at current time</em></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Search, Filter & List Controls -->
+            <section class="list-controls-row">
+                <div class="search-input-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" id="filterInput" placeholder="Search subtitle text or timestamp...">
+                </div>
+                <div class="list-switches">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="chkSyncScroll" checked>
+                        <span>Sync Scroll</span>
+                    </label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="chkHighlightDiff" checked>
+                        <span>Offset Badges</span>
+                    </label>
+                    <span class="stats-badge" id="visibleCounter">0 cues</span>
+                </div>
+            </section>
+
+            <!-- Side-by-Side Dual Subtitle Comparison Columns -->
+            <section class="dual-columns-grid">
+                <!-- Reference Subtitles -->
+                <div class="column-panel ref-panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <span class="dot en-dot"></span>
+                            <span class="panel-name">Reference: <strong id="colRefName">english.srt</strong></span>
+                        </div>
+                        <span class="count-pill" id="colRefCount">0 Cues</span>
+                    </div>
+                    <div class="subtitles-scroll" id="refSubList">
+                        <div class="empty-placeholder">Drop Reference SRT file here</div>
+                    </div>
+                </div>
+
+                <!-- Target Subtitles (Sinhala) -->
+                <div class="column-panel target-panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <span class="dot sin-dot"></span>
+                            <span class="panel-name">Target: <strong id="colTargetName">sinhala.srt</strong></span>
+                        </div>
+                        <span class="count-pill" id="colTargetCount">0 Cues</span>
+                    </div>
+                    <div class="subtitles-scroll" id="targetSubList">
+                        <div class="empty-placeholder">Drop Target SRT file here</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Export Modal -->
+        <div class="modal-backdrop" id="exportModal">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <h3>Export Fixed Subtitles</h3>
+                    <button class="btn-close" id="btnCloseModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="export-summary-box" id="exportSummary"></div>
+                    <label class="modal-label">Fixed SRT Preview:</label>
+                    <textarea id="rawSrtOutput" readonly class="code-input preview-textarea"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" id="btnCopyClipboard">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg>
+                        Copy to Clipboard
+                    </button>
+                    <button class="btn btn-primary" id="btnDownloadFixedFile">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>
+                        Download .SRT File
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notifications Container -->
+        <div class="toast-area" id="toast"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
